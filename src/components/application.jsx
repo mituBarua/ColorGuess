@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import generateRandomColor from '../lib/generate-random-color';
 import ColorSwatch from './color-swatch';
 import ExpensiveComponent from './expensive-component';
@@ -10,20 +10,27 @@ const Application = () => {
   const [correctAnswer, setCorrectAnswer] = useState(generateRandomColor());
   const [hasGuessed, setHasGuessed] = useState(false);
   const [isWinner, setIsWinner] = useState(false);
+  const colorInputRef = useRef('');
 
-  if (hasGuessed) {
-    if (correctAnswer === colorGuess) {
-      setIsWinner(true);
-    }
-  }
+  const handleGameInputChange = (e) => {
+    colorInputRef.current = e.target.value;
+  };
 
   return (
-    <main className="flex flex-col gap-8 mx-auto my-8 w-96">
+    <main className="mx-auto my-8 flex w-96 flex-col gap-8">
       <ColorSwatch color={correctAnswer} />
       <GameInput
-        value={colorGuess}
-        onChange={(e) => setColorGuess(e.target.value)}
-        onSubmit={() => setHasGuessed(true)}
+        forwardedRef={colorInputRef}
+        onChange={handleGameInputChange}
+        onSubmit={() => {
+          console.log(correctAnswer);
+          
+          if ( correctAnswer === colorInputRef.current) {
+            setIsWinner(true);
+           
+          } 
+          setHasGuessed(true);
+        }}
         disabled={hasGuessed}
       />
       <GameStatus isWinner={isWinner} hasGuessed={hasGuessed} />
@@ -32,6 +39,7 @@ const Application = () => {
           setCorrectAnswer(generateRandomColor());
           setHasGuessed(false);
           setColorGuess('');
+          setIsWinner(false);
         }}
         type={hasGuessed ? 'submit' : 'button'}
       >
